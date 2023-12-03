@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% load static %}
+
+<!-- Блок статистики -->
+<div class="container mt-5">
+  <div class="card">
+    <div class="card-body">
+      <h2 class="card-title">Статистика по часам</h2>
+      <table class="table table-hover" id="stats-table">
+        <thead class="thead-light">
+          <tr>
+            <th>Дата и час</th>
+            <th>Количество запросов</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Статистика будет добавлена здесь -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  function updateStats() {
+    fetch('http://127.0.0.1:8000/api/get_stats', {
+      method: "POST",
+      headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      const statsTable = document.getElementById('stats-table').getElementsByTagName('tbody')[0];
+      statsTable.innerHTML = ''; // Очищаем текущую статистику
+
+      for (const hour in data.request_count) {
+        const row = statsTable.insertRow();
+        const cellHour = row.insertCell(0);
+        const cellRequestCount = row.insertCell(1);
+
+        cellHour.innerHTML = hour;
+        cellRequestCount.innerHTML = data.request_count[hour];
+      }
+    })
+    .catch(error => {
+      console.error('Ошибка при получении статистики:', error);
+    });
+  }
+
+  // Вызов функции обновления статистики при загрузке страницы
+  window.onload = updateStats;
+</script>
+
+{% endblock %}
